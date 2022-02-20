@@ -5,7 +5,7 @@ using System.Linq;
 using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Sessao;
 using TAKEALURA.Models;
-
+using TAKEALURA.Services;
 
 namespace TAKEALURA.Controllers
 {
@@ -14,38 +14,28 @@ namespace TAKEALURA.Controllers
     public class SessaoController : ControllerBase
     {
         private readonly ILogger _logger;
-        private AppDbContext _context;
-        private IMapper _mapper;
+        private SessaoService _sessaoService;
 
-        public SessaoController(ILogger<SessaoController> logger, AppDbContext context, IMapper mapper)
+        public SessaoController(ILogger<SessaoController> logger, SessaoService sessaoService)
         {
             _logger = logger;
-            _context = context;
-            _mapper = mapper;
+            _sessaoService = sessaoService;
         }
 
         [HttpGet("{id}")]
         public IActionResult GetSessaoById(int id)
         {
-            Sessao sessao = _context.Sessoes.FirstOrDefault(s => s.Id == id);
-
-            if(sessao != null)
-            {
-                ReadSessaoDto readSessaoDto = _mapper.Map<ReadSessaoDto>(sessao);
-                return Ok(readSessaoDto);
-            }
-
-            return NotFound();
+            ReadSessaoDto readDto = _sessaoService.GetSessaoById(id);
+            if (readDto == null) return NotFound();
+            return Ok(readDto);
         }
 
         [HttpPost]
         public IActionResult AddSessao([FromBody] CreateSessaoDto sessaoDto)
         {
-            Sessao sessao = _mapper.Map<Sessao>(sessaoDto);
+            ReadSessaoDto readDto = _sessaoService.AddSessao(sessaoDto);
 
-            _context.Sessoes.Add(sessao);
-            _context.SaveChanges();
-            return CreatedAtAction(nameof(GetSessaoById), new {Id = sessao.Id}, sessao);
+            return CreatedAtAction(nameof(GetSessaoById), new {Id = readDto.Id}, readDto);
         }
     }
 }

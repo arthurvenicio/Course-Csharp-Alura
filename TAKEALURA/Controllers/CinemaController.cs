@@ -1,11 +1,14 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Cinema;
 using TAKEALURA.Models;
+using TAKEALURA.Services;
 
 namespace TAKEALURA.Controllers
 {
@@ -14,72 +17,51 @@ namespace TAKEALURA.Controllers
     public class CinemaController : ControllerBase
     {
         private readonly ILogger _logger;
-        private AppDbContext _context;
-        private IMapper _mapper;
+        private CinemaService _cinemaService;
         
-        public CinemaController(ILogger<CinemaController> logger, AppDbContext context, IMapper mapper)
+        public CinemaController(ILogger<CinemaController> logger, CinemaService cinemaService)
         {
             _logger = logger;
-            _context = context;
-            _mapper = mapper;
+            _cinemaService = cinemaService;
         }
         
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_context.Cinemas);
+            List<ReadCinemaDto> readDto = _cinemaService.GetAll();
+            if(readDto == null) return NotFound();
+            return Ok(readDto);
         }
         
         [HttpGet("search")]
         public IActionResult GetCinema([FromQuery]int id)
         {
-            Cinema cinema = _context.Cinemas.FirstOrDefault(c => c.Id == id);
-
-            if (cinema != null)
-            {
-                ReadCinemaDto cine = _mapper.Map<ReadCinemaDto>(cinema);
-                return Ok(cine);
-            }
-            return NotFound();
-            
+            ReadCinemaDto cinemaDto = _cinemaService.GetCinemaById(id);
+            if(cinemaDto != null) return Ok(cinemaDto);
+            return NotFound();    
         }
-        
+
         [HttpPost]
         public IActionResult AddCinema([FromBody] CreateCinemaDto cinema)
         {
-            Cinema newCinema = _mapper.Map<Cinema>(cinema);
-            _context.Cinemas.Add(newCinema);
-            _context.SaveChanges();
+            ReadCinemaDto readDto = _cinemaService.AddCinema(cinema);
             _logger.LogInformation("Create cinema and add in database with sucess!");
-            return CreatedAtAction(nameof(GetCinema), new { Id = newCinema.Id}, cinema);
+            return CreatedAtAction(nameof(GetCinema), new { Id = readDto.Id }, readDto);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateCinema(int id, [FromBody] UpdateCinemaDto cinema)
         {
-            Cinema cine = _context.Cinemas.FirstOrDefault(c => c.Id == id);
-
-            if (cine == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(cinema, cine);
-            _context.SaveChanges();
+            Result resultado = _cinemaService.UpdateCinema(id, cinema);
+            if (resultado.IsFailed) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteCinema(int id)
         {
-            Cinema cinema = _context.Cinemas.FirstOrDefault(c => c.Id == id);
-            if (cinema == null)
-            {
-                return NotFound();
-            }
-
-            _context.Cinemas.Remove(cinema);
-            _context.SaveChanges();
+            Result resultado = _cinemaService.DeleteCinema(id);
+            if (resultado.IsFailed) return NotFound();
             return NoContent();
         }
     }

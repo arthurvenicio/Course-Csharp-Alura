@@ -5,6 +5,9 @@ using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Endereco;
 using TAKEALURA.Models;
 using System.Linq;
+using TAKEALURA.Services;
+using System.Collections.Generic;
+using FluentResults;
 
 namespace TAKEALURA.Controllers
 {
@@ -13,72 +16,50 @@ namespace TAKEALURA.Controllers
     public class EnderecoController : ControllerBase
     {
         private readonly ILogger _logger;
-        private AppDbContext _context;
-        private IMapper _mapper;
-     
-        public EnderecoController(ILogger<EnderecoController> logger, AppDbContext context, IMapper mapper)
+        private EnderecoService _enderecoService;
+
+        public EnderecoController(ILogger<EnderecoController> logger, EnderecoService enderecoService)
         {
             _logger = logger;
-            _context = context;
-            _mapper = mapper;
+            _enderecoService = enderecoService;
         }
         
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_context.Enderecos);
+            List<ReadEnderecoDto> enderecos = _enderecoService.GetAll();
+            if(enderecos == null) return NotFound();
+            return Ok(enderecos);
         }
         
         [HttpGet("search")]
         public IActionResult GetEndereco([FromQuery]int id)
         {
-            Endereco endereco = _context.Enderecos.FirstOrDefault(c => c.Id == id);
-
-            if (endereco != null)
-            {
-                ReadEnderecoDto end = _mapper.Map<ReadEnderecoDto>(endereco);
-                return Ok(end);
-            }
-            return NotFound();
-            
+            ReadEnderecoDto endereco = _enderecoService.GetEndereco(id);
+            if (endereco == null) return NotFound();
+            return Ok(endereco);        
         }
         
         [HttpPost]
         public IActionResult AddEndereco([FromBody] CreateEnderecoDto endereco)
         {
-            Endereco newEndereco = _mapper.Map<Endereco>(endereco);
-            _context.Enderecos.Add(newEndereco);
-            _context.SaveChanges();
-            _logger.LogInformation("Create endereco and add in database with sucess!");
-            return CreatedAtAction(nameof(GetEndereco), new { Id = newEndereco.Id}, endereco);
+            ReadEnderecoDto newEndereco = _enderecoService.AddEndereco(endereco);
+            return CreatedAtAction(nameof(GetEndereco), new { Id = newEndereco.Id}, newEndereco);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateEndereco(int id, [FromBody] UpdateEnderecoDto endereco)
         {
-            Endereco ende = _context.Enderecos.FirstOrDefault(e => e.Id == id);
-
-            if (ende == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(endereco, ende);
-            _context.SaveChanges();
+            Result resultado = _enderecoService.UpdateEndereco(id, endereco);
+            if(resultado.IsFailed) return NotFound();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteEndereco(int id)
         {
-            Endereco endereco = _context.Enderecos.FirstOrDefault(c => c.Id == id);
-            if (endereco == null)
-            {
-                return NotFound();
-            }
-
-            _context.Enderecos.Remove(endereco);
-            _context.SaveChanges();
+            Result resultado = _enderecoService.DeleteEndereco(id);
+            if (resultado.IsFailed) return NotFound();
             return NoContent();
         }
         

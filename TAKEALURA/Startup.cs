@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using TAKEALURA.Data;
+using TAKEALURA.Services;
 
 namespace TAKEALURA
 {
@@ -33,6 +34,11 @@ namespace TAKEALURA
                 opts.UseMySQL(Configuration.GetConnectionString("Database"));
                 opts.UseLazyLoadingProxies();
             });
+            services.AddScoped<CinemaService, CinemaService>();
+            services.AddScoped<FilmeService, FilmeService>();
+            services.AddScoped<EnderecoService, EnderecoService>();
+            services.AddScoped<GerenteService, GerenteService>();
+            services.AddScoped<SessaoService, SessaoService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "TAKEALURA", Version = "v1"}); });

@@ -1,11 +1,14 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using Castle.Core.Logging;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Gerente;
 using TAKEALURA.Models;
+using TAKEALURA.Services;
 
 namespace TAKEALURA.Controllers
 {
@@ -14,69 +17,42 @@ namespace TAKEALURA.Controllers
     public class GerenteController : ControllerBase
     {
         private readonly ILogger<GerenteController> _logger;
-        private AppDbContext _context;
-        private IMapper _mapper;
+        private GerenteService _gerenteService;
         
-        public GerenteController(ILogger<GerenteController> logger, AppDbContext context, IMapper mapper)
+        public GerenteController(ILogger<GerenteController> logger, GerenteService gerenteService)
         {
             _logger = logger;
-            _context = context;
-            _mapper = mapper;
+            _gerenteService = gerenteService;
         }
         
         [HttpGet]
         public IActionResult getAll([FromQuery] int? id = null)
         {
-            if (id != null)
-            {
-                Gerente gerente = _context.Gerentes.FirstOrDefault(g => g.Id == id);
-                if (gerente != null)
-                {
-                    ReadGerenteDto geren = _mapper.Map<ReadGerenteDto>(gerente);
-                    return Ok(geren);
-                }
-                return NotFound();
-            }
-            
-            return Ok(_context.Gerentes);
+            List<ReadGerenteDto> gerentes = _gerenteService.GetAll(id);
+            if(gerentes == null) return NotFound();
+            return Ok(gerentes);
         }
 
         [HttpPost]
         public IActionResult AddGerente([FromBody] CreateGerenteDto gerenteDto)
         {
-            Gerente gerente = _mapper.Map<Gerente>(gerenteDto);
-            _context.Gerentes.Add(gerente);
-            _context.SaveChanges();
-            return CreatedAtAction(nameof(getAll), gerente);
+            ReadGerenteDto readDto = _gerenteService.AddGerente(gerenteDto);
+            return CreatedAtAction(nameof(getAll), new { Id = readDto.Id}, readDto);
         }
         
         [HttpPut("{id}")]
         public IActionResult UpdateGerente(int id, [FromBody] UpdateGerenteDto gerenteDto)
         {
-            Gerente gerente = _context.Gerentes.FirstOrDefault(g => g.Id == id);
-
-            if (gerente == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(gerenteDto, gerente);
-            _context.SaveChanges();
+            Result resultado = _gerenteService.UpdateGerente(id, gerenteDto);
+            if(resultado.IsFailed) return NotFound();
             return NoContent();
         }
 
         [HttpDelete]
         public IActionResult DeleteGerente([FromQuery] int id)
         {
-            Gerente gerente = _context.Gerentes.FirstOrDefault(g => g.Id == id);
-
-            if (gerente == null)
-            {
-                return NotFound();
-            }
-
-            _context.Gerentes.Remove(gerente);
-            _context.SaveChanges();
+            Result resultado = _gerenteService.DeleteGerente(id);
+            if (resultado.IsFailed) return NotFound();
             return NoContent();
         }
     }
