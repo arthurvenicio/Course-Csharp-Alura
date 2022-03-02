@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Linq;
 using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Sessao;
@@ -28,6 +29,14 @@ namespace TAKEALURA.Controllers
             ReadSessaoDto readDto = _sessaoService.GetSessaoById(id);
             if (readDto == null) return NotFound();
             return Ok(readDto);
+        }
+
+        [HttpGet]
+        public IActionResult GetAllSessoes(int? id = null)
+        {
+            List<ReadSessaoDto> sessions = _sessaoService.GetAllSessoes(id);
+            if(sessions == null) return NotFound(); 
+            return Ok(sessions);
         }
 
         [HttpPost]

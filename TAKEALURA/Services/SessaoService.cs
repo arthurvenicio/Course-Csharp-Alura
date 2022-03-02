@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Sessao;
@@ -36,6 +37,31 @@ namespace TAKEALURA.Services
             _context.Sessoes.Add(sessao);
             _context.SaveChanges();
             return _mapper.Map<ReadSessaoDto>(sessao);
+        }
+
+        public List<ReadSessaoDto> GetAllSessoes(int? id)
+        {
+
+            List<Sessao> sessoes;
+            
+            if(id == null)
+            {
+                sessoes = _context.Sessoes.ToList();
+            }
+            else
+            {
+                sessoes = _context.Sessoes.Where(s => s.Id == id).ToList();
+
+            }
+
+            if(sessoes != null)
+            {
+                List<ReadSessaoDto> sessoesDto = _mapper.Map<List<ReadSessaoDto>>(sessoes);
+                return sessoesDto;
+            }
+
+            return null;
+
         }
     }
 }

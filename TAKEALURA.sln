@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAKEALURA", "TAKEALURA\TAKEALURA.csproj", "{0BC6F7F9-01D9-4B67-9DF9-76B0B54D8B7D}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiCinema", "TAKEALURA\ApiCinema.csproj", "{0BC6F7F9-01D9-4B67-9DF9-76B0B54D8B7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiUsers", "ApiUsers\ApiUsers.csproj", "{78848105-1DA9-4BC2-A463-140824A1C099}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,15 @@ Global
 		{0BC6F7F9-01D9-4B67-9DF9-76B0B54D8B7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BC6F7F9-01D9-4B67-9DF9-76B0B54D8B7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BC6F7F9-01D9-4B67-9DF9-76B0B54D8B7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78848105-1DA9-4BC2-A463-140824A1C099}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78848105-1DA9-4BC2-A463-140824A1C099}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78848105-1DA9-4BC2-A463-140824A1C099}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78848105-1DA9-4BC2-A463-140824A1C099}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4F1368E6-614C-4FC3-A95E-63FBD9C2A876}
 	EndGlobalSection
 EndGlobal
