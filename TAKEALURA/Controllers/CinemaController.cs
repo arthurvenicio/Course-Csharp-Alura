@@ -2,6 +2,7 @@
 using System.Linq;
 using AutoMapper;
 using FluentResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -40,7 +41,7 @@ namespace TAKEALURA.Controllers
             if(cinemaDto != null) return Ok(cinemaDto);
             return NotFound();    
         }
-
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public IActionResult AddCinema([FromBody] CreateCinemaDto cinema)
         {

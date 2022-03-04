@@ -6,6 +6,7 @@ using FluentResults;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Web;
 
 namespace ApiUsers.Services
@@ -15,20 +16,26 @@ namespace ApiUsers.Services
         private IMapper _mapper;
         private UserManager<IdentityUser<int>> _userManager;
         private EmailService _emailService;
+        private RoleManager<IdentityRole<int>> _roleManager;
 
-        public UserService(IMapper mapper, UserManager<IdentityUser<int>> userManager, EmailService emailService)
+        public UserService(IMapper mapper, UserManager<IdentityUser<int>> userManager, EmailService emailService, RoleManager<IdentityRole<int>> roleManager)
         {
             _mapper = mapper;
             _userManager = userManager;
             _emailService = emailService;
+            _roleManager = roleManager;
         }
 
         public Result CreateUser(CreateUserDto userDto)
         {
             User user = _mapper.Map<User>(userDto);
             IdentityUser<int> userI = _mapper.Map<IdentityUser<int>>(user);
-            var resultIdentity = _userManager.CreateAsync(userI, userDto.Password);
-            if (resultIdentity.Result.Succeeded)
+            var resultIdentity = _userManager.CreateAsync(userI, userDto.Password).Result; 
+
+            var roleCreateResult = _roleManager.CreateAsync(new IdentityRole<int>("admin")).Result;
+            var userRoleResult = _userManager.AddToRoleAsync(userI, "admin").Result;
+
+            if (resultIdentity.Succeeded) 
             {
                 var code = _userManager.GenerateEmailConfirmationTokenAsync(userI).Result;
                 var encodeCode = HttpUtility.UrlEncode(code);

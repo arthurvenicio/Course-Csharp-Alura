@@ -9,5 +9,10 @@ namespace ApiUsers.Data
         public UserDbContext(DbContextOptions<UserDbContext> opts): base(opts)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
     }
 }
