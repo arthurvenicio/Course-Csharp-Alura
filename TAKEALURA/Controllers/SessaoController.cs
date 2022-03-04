@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using TAKEALURA.Data;
 using TAKEALURA.Data.Dtos.Sessao;
 using TAKEALURA.Models;
@@ -16,13 +17,13 @@ namespace TAKEALURA.Controllers
     {
         private readonly ILogger _logger;
         private SessaoService _sessaoService;
-
+        
         public SessaoController(ILogger<SessaoController> logger, SessaoService sessaoService)
         {
             _logger = logger;
             _sessaoService = sessaoService;
         }
-
+        [Authorize(Roles = "admin, regular")]
         [HttpGet("{id}")]
         public IActionResult GetSessaoById(int id)
         {
@@ -30,7 +31,7 @@ namespace TAKEALURA.Controllers
             if (readDto == null) return NotFound();
             return Ok(readDto);
         }
-
+        [Authorize(Roles = "admin, regular")]
         [HttpGet]
         public IActionResult GetAllSessoes(int? id = null)
         {
@@ -38,12 +39,11 @@ namespace TAKEALURA.Controllers
             if(sessions == null) return NotFound(); 
             return Ok(sessions);
         }
-
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public IActionResult AddSessao([FromBody] CreateSessaoDto sessaoDto)
         {
             ReadSessaoDto readDto = _sessaoService.AddSessao(sessaoDto);
-
             return CreatedAtAction(nameof(GetSessaoById), new {Id = readDto.Id}, readDto);
         }
     }

@@ -41,6 +41,10 @@ namespace TAKEALURA.Services
         public ReadCinemaDto AddCinema(CreateCinemaDto cinemaDto)
         {
             Cinema newCinema = _mapper.Map<Cinema>(cinemaDto);
+
+            var cinemaAlreadyExist = _context.Cinemas.FirstOrDefault(c => c.EnderecoId == newCinema.EnderecoId);
+            if (cinemaAlreadyExist != null) return null;
+
             _context.Cinemas.Add(newCinema);
             _context.SaveChanges();
             return _mapper.Map<ReadCinemaDto>(newCinema);

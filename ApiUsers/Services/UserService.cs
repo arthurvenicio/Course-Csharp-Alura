@@ -31,9 +31,7 @@ namespace ApiUsers.Services
             User user = _mapper.Map<User>(userDto);
             IdentityUser<int> userI = _mapper.Map<IdentityUser<int>>(user);
             var resultIdentity = _userManager.CreateAsync(userI, userDto.Password).Result; 
-
-            var roleCreateResult = _roleManager.CreateAsync(new IdentityRole<int>("admin")).Result;
-            var userRoleResult = _userManager.AddToRoleAsync(userI, "admin").Result;
+            _userManager.AddToRoleAsync(userI, "regular");
 
             if (resultIdentity.Succeeded) 
             {
