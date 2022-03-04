@@ -28,5 +28,21 @@ namespace ApiUsers.Controllers
             return Ok(result.Successes.FirstOrDefault().Message);
         }
 
+        [HttpPost("request-reset")]
+        public IActionResult RequestResetUser(RequestResetUser request)
+        {
+            Result result = _loginService.RequesetResetUser(request);
+            if (result.IsFailed) return NotFound(result.Errors.FirstOrDefault());
+            return Ok(result.Successes.FirstOrDefault());
+        }
+
+        [HttpPost("reset-user")]
+        public IActionResult ResetUser(ResetUserRequest request)
+        {
+            Result result = _loginService.ResetUser(request);
+            if (result.IsFailed) return Unauthorized(result.Errors.FirstOrDefault());
+            return Ok(result.Successes.FirstOrDefault());
+        }
+
     }
 }

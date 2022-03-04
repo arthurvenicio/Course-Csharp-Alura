@@ -11,12 +11,13 @@ namespace ApiUsers.Services
 {
     public class TokenService
     {
-        public Token CreateToken(IdentityUser<int> identityUser)
+        public Token CreateToken(IdentityUser<int> identityUser, string role)
         {
             Claim[] rights = new Claim[] 
             {
                 new Claim("username", identityUser.UserName),
                 new Claim("id", identityUser.Id.ToString()),
+                new Claim(ClaimTypes.Role, role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ua12sad484dafas92fsa33dsfa09fgasdh87uasfa194gagj02fabas23afs"));

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TAKEALURA.Data;
 using TAKEALURA.Services;
@@ -34,6 +37,25 @@ namespace TAKEALURA
                 opts.UseMySQL(Configuration.GetConnectionString("Database"));
                 opts.UseLazyLoadingProxies();
             });
+            services.AddAuthentication(a =>
+            {
+                a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(j =>
+            {
+                j.RequireHttpsMetadata = true;
+                j.SaveToken = true;
+                j.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes("ua12sad484dafas92fsa33dsfa09fgasdh87uasfa194gagj02fabas23afs")),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+            
             services.AddScoped<CinemaService, CinemaService>();
             services.AddScoped<FilmeService, FilmeService>();
             services.AddScoped<EnderecoService, EnderecoService>();
@@ -57,7 +79,7 @@ namespace TAKEALURA
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
